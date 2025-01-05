@@ -1,5 +1,5 @@
 import express from 'express';
-import { promoteToAssistantAdmin, demoteToUser, getAllUsers, toggleUserActiveStatus, deleteCampaign, toggleCampaignStatus, getAllCampaign  } from '../controllers/admin.js';
+import { promoteToAssistantAdmin, demoteToUser, getAllUsers, toggleUserActiveStatus, getAllCampaignTest, deleteCampaign, toggleCampaignStatus, getAllCampaign  } from '../controllers/admin.js';
 import { verifyToken, verifyAdmin } from '../middleware/auth.js';
 import { getAssistantAdminsAndCampaigns } from '../controllers/campaign.js'
 
@@ -9,6 +9,9 @@ const router = express.Router();
 router.get('/users', verifyToken, verifyAdmin, getAllUsers);
 
 router.get('/campaignadmin', verifyToken, verifyAdmin, getAllCampaign);
+
+router.get('/campaignadmins', verifyToken, verifyAdmin, getAllCampaignTest);
+
 
 // Promote user to Assistant Admin
 router.patch('/promote/:id', verifyToken, verifyAdmin, promoteToAssistantAdmin);

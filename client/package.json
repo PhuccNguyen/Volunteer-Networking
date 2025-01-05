@@ -1,4 +1,5 @@
 {
+  "homepage": "https://phuccnguyen.github.io/Volunteer-Networking",
   "name": "client",
   "version": "0.1.0",
   "private": true,
@@ -26,7 +27,9 @@
     "dotenv": "^16.4.5",
     "formik": "^2.4.6",
     "framer-motion": "^11.11.8",
+    "gh": "^2.8.9",
     "lucide-react": "^0.446.0",
+    "pages": "^0.0.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
@@ -44,6 +47,8 @@
     "yup": "^1.4.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+   gi "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

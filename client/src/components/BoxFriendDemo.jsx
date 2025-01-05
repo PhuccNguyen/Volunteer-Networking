@@ -244,7 +244,7 @@ const BoxFriend = ({
   const renderActionButton = () => {
     console.log("loggedInUserId:", loggedInUserId, "friendId:", friendId);
 
-    if (loggedInUserId === loggedInUserId) {
+    if (loggedInUserId === friendId) {
       return (
         <>
           <MenuItem onClick={handleOpenEditDialog} startIcon={<Edit />}>

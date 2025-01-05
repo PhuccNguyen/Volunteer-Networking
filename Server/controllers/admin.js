@@ -92,7 +92,7 @@ export const toggleCampaignStatus = async (req, res) => {
 export const getAllCampaign = async (req, res) => {
   try {
     const campaigns = await Campaign.find()
-      .populate("createdBy", "firstName lastName username picturePath") // Populate specific fields
+      .populate("createdBy", "firstName lastName username picturePath") 
       .lean();
 
     res.status(200).json({ campaigns });
@@ -101,6 +101,17 @@ export const getAllCampaign = async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve campaigns" });
   }
 };
+
+export const getAllCampaignTest = async (req, res) => {
+  try {
+    const campaigns = await Campaign.find()
+    res.status(200).json({ campaigns });
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
+    res.status(500).json({ error: "Failed to retrieve campaigns" });
+  }
+};
+
 
 export const deleteCampaign = async (req, res) => {
   const { id } = req.params;

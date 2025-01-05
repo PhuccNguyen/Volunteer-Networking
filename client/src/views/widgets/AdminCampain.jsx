@@ -485,7 +485,7 @@ const CampaignPage = () => {
 
               {/* Edit and Delete Buttons (Admin only) */}
               <Box ml={2}>
-                <Button
+                {/* <Button
                   variant="contained"
                   color="primary"
                   onClick={() => handleEditCampaign(selectedCampaign._id)}
@@ -496,7 +496,7 @@ const CampaignPage = () => {
                   }}
                 >
                   Edit
-                </Button>
+                </Button> */}
 
                 <Button
                   variant="contained"

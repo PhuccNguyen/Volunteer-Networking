@@ -3,7 +3,7 @@ import {
   ImageOutlined,
   LocationOnOutlined,
   VideoLibraryOutlined, // Icon for videos
-  InsertDriveFileOutlined, // Icon for files  
+  InsertDriveFileOutlined, // Icon for files
 } from "@mui/icons-material";
 import {
   Box,
@@ -39,16 +39,14 @@ const MyPostWidget = ({ picturePath }) => {
   const [preview, setPreview] = useState(null);
   const [post, setPost] = useState("");
   const [location, setLocation] = useState("");
-  const [customLocation, setCustomLocation] = useState(""); 
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [customLocation, setCustomLocation] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const { palette } = useTheme();
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   // const main = palette.neutral.main;
   const { _id, firstName, lastName } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
-
-
 
   const availableLocations = [
     "12 Lê Lợi, Quận 1, Sài Gòn – TP HCM",
@@ -80,66 +78,66 @@ const MyPostWidget = ({ picturePath }) => {
     "25 Đinh Tiên Hoàng, Quận 1, Sài Gòn – TP HCM",
     "18 Nguyễn Công Trứ, Quận 1, Sài Gòn – TP HCM",
     "62 Tôn Thất Tùng, Quận 1, Sài Gòn – TP HCM",
-    "30A Nam Kỳ Khởi Nghĩa, Quận 3, Sài Gòn – TP HCM"  ];
+    "30A Nam Kỳ Khởi Nghĩa, Quận 3, Sài Gòn – TP HCM",
+  ];
 
-    const handlePost = async () => {
-      const formData = new FormData();
-      formData.append("userId", _id);  // Append user ID
-      formData.append("description", post);  // Append post description
-      formData.append("destination", location || customLocation || "");  // Append location
-    
-      // Append image if present
-      if (image) {
-        formData.append("picture", image);
-        formData.append("picturePath", image.name);
+  const handlePost = async () => {
+    const formData = new FormData();
+    formData.append("userId", _id); // Append user ID
+    formData.append("description", post); // Append post description
+    formData.append("destination", location || customLocation || ""); // Append location
+
+    // Append image if present
+    if (image) {
+      formData.append("picture", image);
+      formData.append("picturePath", image.name);
+    }
+
+    // // Append video if present
+    // if (video) {
+    //   formData.append("video", video);
+    //   formData.append("videoPath", video.name);
+    // }
+
+    // // Append file if present
+    // if (file) {
+    //   formData.append("file", file);
+    //   formData.append("filePath", file.name);
+    //   formData.append("fileType", file.type);
+    // }
+
+    try {
+      const response = await fetch(`http://localhost:3001/posts`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData, 
+      });
+
+      if (response.ok) {
+        const posts = await response.json(); // Get the new post data
+        dispatch(setPosts({ posts })); // Dispatch new posts to the store
+        resetPostForm(); // Reset the form after successful post
+      } else {
+        console.error("Failed to post");
       }
-    
-      // Append video if present
-      if (video) {
-        formData.append("video", video);
-        formData.append("videoPath", video.name);
-      }
-    
-      // Append file if present
-      if (file) {
-        formData.append("file", file);
-        formData.append("filePath", file.name);
-        formData.append("fileType", file.type);
-      }
-    
-      try {
-        const response = await fetch(`http://localhost:3001/posts`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` }, // Include token in headers
-          body: formData, // Send formData containing the post details and files
-        });
-    
-        if (response.ok) {
-          const posts = await response.json();  // Get the new post data
-          dispatch(setPosts({ posts }));  // Dispatch new posts to the store
-          resetPostForm();  // Reset the form after successful post
-        } else {
-          console.error("Failed to post");
-        }
-      } catch (error) {
-        console.error("Error posting:", error);
-      }
-    };
-    
+    } catch (error) {
+      console.error("Error posting:", error);
+    }
+  };
 
   const resetPostForm = () => {
     setImage(null);
     setPreview(null);
     setPost("");
     setVideo(null); // Reset video
-    setFile(null);  // Reset file
+    setFile(null); // Reset file
     setLocation("");
-    setCustomLocation(""); 
-    setSearchTerm(""); 
+    setCustomLocation("");
+    setSearchTerm("");
     setIsDialogOpen(false);
     setIsLocationDialogOpen(false);
   };
- 
+
   const handleLocationSelect = (selectedLocation) => {
     setLocation(selectedLocation);
     setCustomLocation("");
@@ -156,7 +154,10 @@ const MyPostWidget = ({ picturePath }) => {
 
   return (
     <>
-      <WidgetWrapper boxShadow= "0px 6px 13px 3px rgba(0, 0, 0, 0.1)" margin="-0.5rem 0rem 0rem 0rem">
+      <WidgetWrapper
+        boxShadow="0px 6px 13px 3px rgba(0, 0, 0, 0.1)"
+        margin="-0.5rem 0rem 0rem 0rem"
+      >
         <Box>
           <Adjustment gap="1.5rem" width="600px" marginBottom="10px">
             <UserImage image={picturePath} />
@@ -173,10 +174,15 @@ const MyPostWidget = ({ picturePath }) => {
           </Adjustment>
         </Box>
         <Divider />
-        <Box display="flex" justifyContent="space-between" maxWidth="100%" padding="0 9%">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          maxWidth="100%"
+          padding="0 9%"
+        >
           <Button
-              onClick={() => setIsDialogOpen(true)}
-              sx={{
+            onClick={() => setIsDialogOpen(true)}
+            sx={{
               marginTop: "10px",
               padding: "0.5rem 1rem",
               width: "45%",
@@ -189,25 +195,25 @@ const MyPostWidget = ({ picturePath }) => {
               justifyContent: "center",
             }}
           >
-            <Typography 
-               color={dark} 
-               sx={{ 
-              cursor: "pointer", 
-              display: "flex", 
-              alignItems: "center",
-              "&:hover": {
-                color: "white",  
-            },
-               }}
-               >
-             <ImageOutlined sx={{ marginRight: "0.5rem" }} /> 
+            <Typography
+              color={dark}
+              sx={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                "&:hover": {
+                  color: "white",
+                },
+              }}
+            >
+              <ImageOutlined sx={{ marginRight: "0.5rem" }} />
               Add Image
-           </Typography>
+            </Typography>
           </Button>
 
           <Button
-              onClick={() => setIsDialogOpen(true)}
-              sx={{
+            onClick={() => setIsDialogOpen(true)}
+            sx={{
               marginTop: "10px",
               padding: "0.5rem 1rem",
               width: "45%",
@@ -220,20 +226,20 @@ const MyPostWidget = ({ picturePath }) => {
               justifyContent: "center",
             }}
           >
-            <Typography 
-               color={dark} 
-              sx={{ 
-              cursor: "pointer", 
-              display: "flex", 
-              alignItems: "center",
-              "&:hover": {
-                  color: "white",  
-              },
-             }}
-              >
-          <LocationOnOutlined sx={{ marginRight: "0.5rem" }} /> 
-          Check In
-         </Typography>
+            <Typography
+              color={dark}
+              sx={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                "&:hover": {
+                  color: "white",
+                },
+              }}
+            >
+              <LocationOnOutlined sx={{ marginRight: "0.5rem" }} />
+              Check In
+            </Typography>
           </Button>
         </Box>
       </WidgetWrapper>
@@ -253,13 +259,17 @@ const MyPostWidget = ({ picturePath }) => {
           Create Post
         </DialogTitle>
         <DialogContent sx={{ padding: "0.7rem" }}>
+          
           <Box display="flex" alignItems="center" mb="0.5rem" mt="0.5rem">
             <UserImage image={picturePath} />
             <Typography variant="h6" ml="1rem">
-              {firstName} {lastName} {location || customLocation ? `Volunteer In:  ${location || customLocation}`
-              : ``}
+              {firstName} {lastName}{" "}
+              {location || customLocation
+                ? `Volunteer In:  ${location || customLocation}`
+                : ``}
             </Typography>
           </Box>
+
           <InputBase
             placeholder={`What's on your mind, ${firstName}?`}
             onChange={(e) => setPost(e.target.value)}
@@ -276,37 +286,40 @@ const MyPostWidget = ({ picturePath }) => {
               border: `1px solid ${palette.neutral.main}`,
             }}
           />
-          <Box display="flex" alignItems="center" justifyContent="start" >
-            <Box marginRight= "1rem" > Add Your Post: </Box>
+          
+          <Box display="flex" alignItems="center" justifyContent="start">
+            <Box marginRight="1rem"> Add Your Post: </Box>
             <Button
               onClick={() => setIsLocationDialogOpen(true)}
               sx={{
-              display: "flex",
-              alignItems: "center",
-              color: "white", 
-              background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)", 
-              borderRadius: "2rem", 
-              padding: "0.5rem 0.5rem",
-              marginRight: "1rem",
-              "&:hover": {
-                background: "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",
-              },
-            }}
-           >
-             <LocationOnOutlined sx={{ marginRight: "0.5rem" }} /> Check In
-           </Button>
+                display: "flex",
+                alignItems: "center",
+                color: "white",
+                background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)",
+                borderRadius: "2rem",
+                padding: "0.5rem 0.5rem",
+                marginRight: "1rem",
+                "&:hover": {
+                  background:
+                    "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",
+                },
+              }}
+            >
+              <LocationOnOutlined sx={{ marginRight: "0.5rem" }} /> Check In
+            </Button>
 
             <Button
               onClick={() => setImage(!image)}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                color: "white", 
-                background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)", 
-                borderRadius: "2rem", 
+                color: "white",
+                background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)",
+                borderRadius: "2rem",
                 padding: "0.5rem 0.5rem",
                 "&:hover": {
-                  background: "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",
+                  background:
+                    "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",
                 },
               }}
             >
@@ -314,74 +327,74 @@ const MyPostWidget = ({ picturePath }) => {
             </Button>
           </Box>
 
-            {image && (
-              <Box
-                border={`1px solid ${medium}`}
-                borderRadius="5px"
-                mt="1rem"
-                p="1rem"
-              >
-                <Dropzone
-                  acceptedFiles=".jpg,.jpeg,.png"
-                  multiple={false}
-                  onDrop={(acceptedFiles) => {
-                    const file = acceptedFiles[0];
-                    setImage(file);
-                    setPreview(URL.createObjectURL(file)); // Generate preview URL
-                  }}
-                >
-                  {({ getRootProps, getInputProps }) => (
-                    <Box
-                      {...getRootProps()}
-                      border={`2px dashed ${palette.primary.main}`}
-                      p="1rem"
-                      sx={{ "&:hover": { cursor: "pointer" } }}
-                    >
-                      <input {...getInputProps()} />
-                      {!preview ? (
-                        <Typography>Add Image Here</Typography>
-                      ) : (
-                        <Box
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                        >
-                          <img
-                            src={preview}
-                            alt="Preview"
-                            style={{ maxWidth: "100px", maxHeight: "100px" }}
-                          />
-                          <Typography>{image.name}</Typography>
-                          <EditOutlined />
-                        </Box>
-                      )}
-                    </Box>
-                  )}
-                </Dropzone>
-              </Box>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={resetPostForm} sx={{ marginRight: "auto" }}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handlePost}
-              disabled={!post && !image}
-              sx={{
-                color: "white", 
-                background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)", 
-                borderRadius: "2rem", 
-                padding: "0.5rem 0.5rem",
-                "&:hover": {
-                  background: "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",
-                },
-              }}
+          {image && (
+            <Box
+              border={`1px solid ${medium}`}
+              borderRadius="5px"
+              mt="1rem"
+              p="1rem"
             >
-              Post
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <Dropzone
+                acceptedFiles=".jpg,.jpeg,.png"
+                multiple={false}
+                onDrop={(acceptedFiles) => {
+                  const file = acceptedFiles[0];
+                  setImage(file);
+                  setPreview(URL.createObjectURL(file)); // Generate preview URL
+                }}
+              >
+                {({ getRootProps, getInputProps }) => (
+                  <Box
+                    {...getRootProps()}
+                    border={`2px dashed ${palette.primary.main}`}
+                    p="1rem"
+                    sx={{ "&:hover": { cursor: "pointer" } }}
+                  >
+                    <input {...getInputProps()} />
+                    {!preview ? (
+                      <Typography>Add Image Here</Typography>
+                    ) : (
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <img
+                          src={preview}
+                          alt="Preview"
+                          style={{ maxWidth: "100px", maxHeight: "100px" }}
+                        />
+                        <Typography>{image.name}</Typography>
+                        <EditOutlined />
+                      </Box>
+                    )}
+                  </Box>
+                )}
+              </Dropzone>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={resetPostForm} sx={{ marginRight: "auto" }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handlePost}
+            disabled={!post && !image}
+            sx={{
+              color: "white",
+              background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)",
+              borderRadius: "2rem",
+              padding: "0.5rem 0.5rem",
+              "&:hover": {
+                background: "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",
+              },
+            }}
+          >
+            Post
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={isLocationDialogOpen}
@@ -401,7 +414,7 @@ const MyPostWidget = ({ picturePath }) => {
             onChange={handleSearchChange}
           />
           <List>
-          <ListItem>
+            <ListItem>
               <InputBase
                 placeholder="Add your location"
                 value={customLocation}
@@ -410,10 +423,7 @@ const MyPostWidget = ({ picturePath }) => {
               />
             </ListItem>
             {filteredLocations.map((loc, index) => (
-              <ListItem
-                key={index}
-                onClick={() => handleLocationSelect(loc)}
-              >
+              <ListItem key={index} onClick={() => handleLocationSelect(loc)}>
                 <ListItemText primary={loc} />
               </ListItem>
             ))}
@@ -423,15 +433,15 @@ const MyPostWidget = ({ picturePath }) => {
           <Button onClick={() => setIsLocationDialogOpen(false)}>Cancel</Button>
           <Button
             onClick={() => {
-              setLocation(customLocation || ""); 
+              setLocation(customLocation || "");
               setCustomLocation("");
-              setSearchTerm(""); 
+              setSearchTerm("");
               setIsLocationDialogOpen(false);
             }}
             sx={{
-              color: "white", 
-              background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)", 
-              borderRadius: "2rem", 
+              color: "white",
+              background: "linear-gradient(310deg, #7928CA 0%, #FF0080 100%)",
+              borderRadius: "2rem",
               padding: "0.5rem 0.5rem",
               "&:hover": {
                 background: "linear-gradient(310deg, #FF0080 0%, #7928CA 100%)",

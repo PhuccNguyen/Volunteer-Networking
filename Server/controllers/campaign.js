@@ -85,7 +85,7 @@ export const registerCampaign = async (req, res) => {
 
     // Check if the campaign has ended
     const currentDate = new Date();
-    if (campaign.campaignEndDate < currentDate) {
+    if (campaign.registrationEndDate < currentDate) {
       return res
         .status(400)
         .json({ message: "This campaign has already ended" });
@@ -217,6 +217,7 @@ export const getCampaignsByStatus = async (req, res) => {
   const { status } = req.query;
   const now = new Date();
   const userId = req.user.id;
+  
 
   try {
     let campaigns;
@@ -227,6 +228,7 @@ export const getCampaignsByStatus = async (req, res) => {
         createdBy: userId,
         registrationStartDate: { $gt: now },
       });
+      
     } else if (status === "ongoing") {
       // Ongoing campaigns: in the registration period or actively in progress
       campaigns = await Campaign.find({

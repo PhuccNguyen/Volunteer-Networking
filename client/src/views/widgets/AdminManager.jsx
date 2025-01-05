@@ -719,6 +719,7 @@ const AdminDashboard = () => {
                 </TableRow>
               ))}
             </TableBody>
+            
           </Table>
         </Box>
       )}
