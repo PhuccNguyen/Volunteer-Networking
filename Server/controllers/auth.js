@@ -28,12 +28,21 @@ export const register = async (req, res) => {
         }
 
         // Check if the user already exists
+        // Validate password strength
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({ 
+                message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character" 
+            });
+        }
+
         const existingUser = await User.findOne({ $or: [{ userName }, { email }, { mobile }] });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        const salt = await bcrypt.genSalt();
+        // Use higher salt rounds for better security (12 is recommended minimum)
+        const salt = await bcrypt.genSalt(12);
         const passwordHash = await bcrypt.hash(password, salt);
 
         const newUser = new User({
