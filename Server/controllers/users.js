@@ -201,6 +201,14 @@ export const updateUser = async (req, res) => {
 
     // CHANGE PASSWORD IF REQUESTED
     if (oldPassword && newPassword) {
+      // Validate password strength
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({ 
+          message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character" 
+        });
+      }
+
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) {
         return res
@@ -208,7 +216,8 @@ export const updateUser = async (req, res) => {
           .json({ message: "Current password is incorrect" });
       }
 
-      const salt = await bcrypt.genSalt();
+      // Use higher salt rounds for better security (12 is recommended minimum)
+      const salt = await bcrypt.genSalt(12);
       user.password = await bcrypt.hash(newPassword, salt);
     }
 

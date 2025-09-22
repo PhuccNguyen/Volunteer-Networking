@@ -10,6 +10,8 @@ import {
     updateProfilePic ,
 } from "../controllers/users.js";
 import { verifyToken } from '../middleware/auth.js';
+import { passwordLimiter, contactUpdateLimiter } from '../middleware/rateLimiter.js';
+import { sanitizeInput, validateEmail, validateMobile } from '../middleware/validation.js';
 import multer from 'multer'; // File upload handler
 import crypto from 'crypto';
 import path from 'path';  // Make sure to import the path module
@@ -55,8 +57,11 @@ const upload = multer
 // Get user profile
 router.get("/:id", verifyToken, getUser);
 
-// Update Infor user 
-router.patch("/:id", verifyToken, updateUser);
+// Update user information with security validation
+router.patch("/:id", verifyToken, sanitizeInput, validateEmail, validateMobile, contactUpdateLimiter, updateUser);
+
+// Dedicated route for password changes with enhanced security
+router.patch("/:id/password", verifyToken, passwordLimiter, sanitizeInput, updateUser);
 
 // Route for updating user profile picture
 router.post("/:id/updateProfilePic", verifyToken, upload.single('file'), updateProfilePic);

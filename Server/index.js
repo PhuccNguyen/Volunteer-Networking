@@ -29,6 +29,8 @@ import { searchInformation } from "./controllers/search.js";
 
 // Import Middleware
 import { verifyToken, verifyAssistantAdmin } from "./middleware/auth.js";
+import { apiLimiter, authLimiter, passwordLimiter, contactUpdateLimiter } from "./middleware/rateLimiter.js";
+import { sanitizeInput, validateRegistration } from "./middleware/validation.js";
 
 // Load environment variables
 dotenv.config();
@@ -38,19 +40,64 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-// Middleware
-app.use(express.json());
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
-app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors());
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+// Security Middleware - Apply security headers first
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'"],
+    },
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  }
+}));
 
-// Debugging: Check environment variables
-console.log("MONGO_URL:", process.env.MONGO_URL);
-console.log("PORT:", process.env.PORT);
+// CORS Configuration - More restrictive for security
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://phuccnguyen.github.io'] // Only allow production domain
+    : ['http://localhost:3000', 'http://127.0.0.1:3000'], // Dev domains
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
+
+// Body parsing with security limits
+app.use(express.json({ limit: "10mb" })); // Reduced from 30mb for security
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(bodyParser.json({ limit: "10mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
+
+// Logging
+app.use(morgan("combined")); // More detailed logging for security
+
+// Static files with security headers
+app.use("/assets", express.static(path.join(__dirname, "public/assets"), {
+  maxAge: '1d',
+  setHeaders: (res, path) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+}));
+
+// Apply general API rate limiting to all routes
+app.use(apiLimiter);
+
+// Remove debug logging for production security
+if (process.env.NODE_ENV !== 'production') {
+  console.log("MONGO_URL:", process.env.MONGO_URL ? "***SET***" : "NOT SET");
+  console.log("JWT_SECRET:", process.env.JWT_SECRET ? "***SET***" : "NOT SET");
+  console.log("PORT:", process.env.PORT);
+}
 
 // File storage (multer)
 const storage = multer.diskStorage({
@@ -84,15 +131,15 @@ const upload = multer({
 });
 
 
-// Routes with files
-app.post("/auth/register", upload.single("picture"), register);
+// Routes with files - Apply specific rate limiting
+app.post("/auth/register", authLimiter, sanitizeInput, validateRegistration, upload.single("picture"), register);
 app.post("/posts", verifyToken, upload.single("picture"), createPost);
 app.post("/campaigns", verifyToken, verifyAssistantAdmin, upload.single("imageCampaing"), createCampaign);
 app.get("/search", verifyToken, searchInformation);
 
-// Routes
-app.use("/auth", authRoutes);
-app.use("/users", usersRoutes );
+// Routes with rate limiting
+app.use("/auth", authLimiter, authRoutes);
+app.use("/users", usersRoutes);
 app.use("/posts", postsRoutes);
 app.use("/friends", verifyToken, friendRoutes);
 app.use("/volunteer", volunteerRoutes);
